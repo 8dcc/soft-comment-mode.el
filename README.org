@@ -1,0 +1,41 @@
+#+TITLE: soft-comment.el
+#+AUTHOR: 8dcc
+#+OPTIONS: toc:2
+#+STARTUP: nofold
+
+*Minor Emacs mode for softening the color of comments.*
+
+Useful for temporarily ignoring comments, effectively focusing on actual code.
+
+* Installing
+
+This package is not available in Melpa, but you can install it with
+=package-vc-install=:
+
+#+begin_src emacs-lisp
+(package-vc-install "https://github.com/8dcc/soft-comment.el")
+#+end_src
+
+Alternatively, if you are using [[https://github.com/radian-software/straight.el][straight.el]], you can specify the recipe with
+=straight-use-package=:
+
+#+begin_src emacs-lisp
+(straight-use-package
+ '(soft-comment :type git :host github :repo "8dcc/soft-comment.el"))
+#+end_src
+
+* Customizing
+
+The following variables can be customized.
+
+- Variable: soft-comment-ratio ::
+
+  Specifies how much the comment color should be blended with the background.
+
+  The value should be a floating-point number in the range ~[0..1]~, where a lower
+  value will translate to a softer comment (i.e. to a bigger difference).
+
+- Variable: soft-comment-face ::
+
+  Symbol representing the name of the font used for comments. Usually
+  =font-lock-comment-face=.

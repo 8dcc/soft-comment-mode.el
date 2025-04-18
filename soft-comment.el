@@ -36,8 +36,7 @@
 The value should be a floating-point number in the range [0..1], where a lower
 value will translate to a softer comment (i.e. to a bigger difference)."
   :group 'soft-comment
-  :type 'float
-  :validate #'soft-comment--validate-scale
+  :type '(float :validate #'soft-comment--validate-scale)
   :risky t)
 
 (defcustom soft-comment-face 'font-lock-comment-face
@@ -60,6 +59,22 @@ The scale is expected to be in the [0..1] range."
         nil
       (widget-put widget :error "Invalid range, expected [0..1]")
       widget)))
+
+(defun soft-comment--hex2rgb (hex)
+  "Convert a HEX string representing an RGB color into a 3-element list."
+  (let ((str-r (substring hex 1 3))
+        (str-g (substring hex 3 5))
+        (str-b (substring hex 5 7)))
+    (list (string-to-number str-r 16)
+          (string-to-number str-g 16)
+          (string-to-number str-b 16))))
+
+(defun soft-comment--rgb2hex (rgb)
+  "Convert a 3-element list representing an RGB color into a HEX string."
+  (let ((r (car   rgb))
+        (g (cadr  rgb))
+        (b (caddr rgb)))
+    (format "#%02x%02x%02x" r g b)))
 
 ;; NOTE: The `cl-mapcar' function could be used similarly to
 ;; `soft-comment--color-mult', but it would add a package/version dependency.
@@ -85,7 +100,7 @@ Each color is supposed to be a 3-element list containing its RGB values."
   (unless ratio (setq ratio soft-comment-ratio))
   (soft-comment--color-add
    (soft-comment--color-mult foreground ratio)
-   (soft-comment--color-mult foreground (- 1.0 ratio))))
+   (soft-comment--color-mult background (- 1.0 ratio))))
 
 (defun soft-comment--enable ()
   "Enable `soft-comment-mode'."
@@ -93,9 +108,11 @@ Each color is supposed to be a 3-element list containing its RGB values."
         (current-background (face-attribute 'default :background)))
     (setq soft-comment--old-foregound current-foreground)
     (set-face-attribute soft-comment-face nil :foreground
-                        (soft-comment--color-blend current-foreground
-                                                   current-background
-                                                   soft-comment-ratio))))
+                        (soft-comment--rgb2hex
+                         (soft-comment--color-blend
+                          (soft-comment--hex2rgb current-foreground)
+                          (soft-comment--hex2rgb current-background)
+                          soft-comment-ratio)))))
 
 (defun soft-comment--disable ()
   "Disable `soft-comment-mode'."
